@@ -1,8 +1,10 @@
---use master 
---create database UNIVER
---переключится сверху 
+
+
+/*use master 
+drop database UNIVER*/
 
 use UNIVER
+
 create table AUDITORIUM_TYPE 
 (    AUDITORIUM_TYPE  char(10) constraint AUDITORIUM_TYPE_PK  primary key,  
       AUDITORIUM_TYPENAME  varchar(30)       
@@ -269,7 +271,6 @@ insert into GROUPS   (FACULTY,  PROFESSION, YEAR_FIRST )
                 ('ИЭФ','1-25 01 07', 2010),
                 ('ИЭФ','1-25 01 08', 2013),
                 ('ИЭФ','1-25 01 08', 2012)     
-                          
 
 create table STUDENT 
 (    IDSTUDENT   integer  identity(1000,1) constraint STUDENT_PK  primary key,

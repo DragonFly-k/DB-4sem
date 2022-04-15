@@ -1,25 +1,31 @@
+use UNIVER
 ---1----
+--сформировать перечень кодов аудиторий
+--и соответствующих им наименований типов аудиторий 
 select AUDITORIUM_TYPE.AUDITORIUM_TYPENAME ,AUDITORIUM.AUDITORIUM 
 from AUDITORIUM inner join AUDITORIUM_TYPE
 on AUDITORIUM.AUDITORIUM_TYPE=AUDITORIUM_TYPE.AUDITORIUM_TYPE
 
 ---2----
+--1+ комп
 select AUDITORIUM_TYPE.AUDITORIUM_TYPENAME ,AUDITORIUM.AUDITORIUM 
 from AUDITORIUM inner join AUDITORIUM_TYPE
-on AUDITORIUM.AUDITORIUM_TYPE=AUDITORIUM_TYPE.AUDITORIUM_TYPE and
-AUDITORIUM_TYPE.AUDITORIUM_TYPENAME LIKE '%компьютер%'
+on AUDITORIUM.AUDITORIUM_TYPE=AUDITORIUM_TYPE.AUDITORIUM_TYPE 
+and AUDITORIUM_TYPE.AUDITORIUM_TYPENAME LIKE '%компьютер%'
 
 ---3----
+-- 1 И 2 Неявно
 select AUDITORIUM_TYPE.AUDITORIUM_TYPENAME ,AUDITORIUM.AUDITORIUM 
 from AUDITORIUM ,AUDITORIUM_TYPE
 where AUDITORIUM.AUDITORIUM_TYPE=AUDITORIUM_TYPE.AUDITORIUM_TYPE
 
 select a2.AUDITORIUM_TYPENAME ,a1.AUDITORIUM 
-from AUDITORIUM as a1, AUDITORIUM_TYPE as a2
-where a1.AUDITORIUM_TYPE=a2.AUDITORIUM_TYPE and
-a2.AUDITORIUM_TYPENAME LIKE '%компьютер%'
+from AUDITORIUM a1, AUDITORIUM_TYPE a2
+where a1.AUDITORIUM_TYPE=a2.AUDITORIUM_TYPE 
+and a2.AUDITORIUM_TYPENAME LIKE '%компьютер%'
 
 ---4----
+--сформировать перечень студентов, полу-чивших экзаменационные оценки от 6 до 8
 select PROGRESS.NOTE, STUDENT.NAME,GROUPS.IDGROUP, SUBJECT.SUBJECT,PULPIT.PULPIT,FACULTY.FACULTY,
 case 
 when (PROGRESS.NOTE =6) then 'шесть'
@@ -35,6 +41,7 @@ inner join PULPIT on SUBJECT.PULPIT= PULPIT.PULPIT
 order by PROGRESS.NOTE desc, FACULTY.FACULTY, PULPIT.PULPIT, STUDENT. NAME
 
 ---5----
+-- 4 + сортировка по экзаменационным оценкам 
 select PROGRESS.NOTE, STUDENT.NAME,GROUPS.IDGROUP, SUBJECT.SUBJECT,PULPIT.PULPIT,FACULTY.FACULTY,
 case 
 when (PROGRESS.NOTE =6) then 'шесть'
@@ -54,24 +61,24 @@ when (PROGRESS.NOTE =8) then 2
 end )
 
 ---6----
-select isnull (TEACHER.TEACHER_NAME, '***' ) , PULPIT.PULPIT_NAME
+--Если на кафедре нет преподавателей, то в столбце Преподаватель должна быть выведена строка ***. 
+select isnull (TEACHER.TEACHER_NAME, '***' ) [Преподаватель] , PULPIT.PULPIT_NAME
 from PULPIT left outer join TEACHER
 on PULPIT.PULPIT = TEACHER.PULPIT
 
 ---7----
-select isnull (TEACHER.TEACHER_NAME, '***' ) , PULPIT.PULPIT_NAME
-from TEACHER left outer join PULPIT 
+-- поменять табл местами
+select isnull (TEACHER.TEACHER_NAME, '***' )[Преподаватель] , PULPIT.PULPIT_NAME
+from TEACHER left outer join PULPIT
+on PULPIT.PULPIT = TEACHER.PULPIT;
+-- тоже самое через right
+select isnull (TEACHER.TEACHER_NAME, '***' ) [Преподаватель] , PULPIT.PULPIT_NAME
+from PULPIT right outer join TEACHER
 on PULPIT.PULPIT = TEACHER.PULPIT
-
-select isnull (TEACHER.TEACHER_NAME, '***' ) , PULPIT.PULPIT_NAME
-from TEACHER right outer join PULPIT 
-on PULPIT.PULPIT = TEACHER.PULPIT
-where TEACHER.TEACHER_NAME is not null 
 
 ---8----
 create table reader
-(ID int primary key, 
-NAME   nvarchar(20))
+(ID int primary key, NAME   nvarchar(20))
 insert into reader 
 values (1, 'kgfakgjfk'),
 (2, 'asgxgy'),
@@ -80,8 +87,7 @@ values (1, 'kgfakgjfk'),
 (5, 'pokjhf')
 
 create table books
-(idbook int primary key,
-reader_id int  foreign key  references reader(id), 
+(idbook int primary key, reader_id int  foreign key  references reader(id), 
 titel nvarchar(20),
 author nvarchar(20))
 insert into books 
@@ -92,32 +98,54 @@ values (17657, 1,'tsydjk','frasth'),
 --drop table books
 --drop table reader
 
+--коммутативность опреации
 select * from reader full outer join books
 on reader.ID=books.reader_id
 
 select * from books full outer join reader
 on reader.ID=books.reader_id
 
-select isnull( PULPIT.PULPIT_NAME ,'***'), isnull( TEACHER.TEACHER_NAME, '***')
-from PULPIT full outer join TEACHER 
-on PULPIT.PULPIT =TEACHER.PULPIT
-where PULPIT.PULPIT_NAME is not null and TEACHER.TEACHER_NAME is not null
+--является объединением LEFT OUTER JOIN и RIGHT OUTER JOIN соединений этих таблиц
+select * from reader left outer join books
+on reader.ID=books.reader_id
+union ALL
+select * from reader right outer join books
+on reader.ID=books.reader_id
+except
+(select * from reader full outer join books
+on reader.ID=books.reader_id)
 
-select isnull( PULPIT.PULPIT_NAME ,'***'), isnull( TEACHER.TEACHER_NAME, '***')
-from PULPIT full outer join TEACHER 
-on PULPIT.PULPIT =TEACHER.PULPIT
-where PULPIT.PULPIT_NAME is not null and TEACHER.TEACHER_NAME is null
+--включает соединение INNER JOIN этих таблиц
+select * from reader inner join books
+on reader.ID=books.reader_id
+except
+(select * from reader full outer join books
+on reader.ID=books.reader_id)
 
-select isnull( PULPIT.PULPIT_NAME ,'***'), isnull( TEACHER.TEACHER_NAME, '***')
-from PULPIT full outer join TEACHER 
-on PULPIT.PULPIT =TEACHER.PULPIT
+--содержит данные левой таблицы и не содержит данные правой
+select PULPIT.FACULTY, PULPIT.PULPIT, PULPIT.PULPIT_NAME
+from PULPIT full outer join TEACHER
+on PULPIT.PULPIT = TEACHER.PULPIT
+where TEACHER.TEACHER is null
+
+--содержит данные правой таблицы и не со-держащие данные левой
+select TEACHER.TEACHER_NAME, TEACHER.TEACHER, TEACHER.PULPIT,TEACHER.GENDER
+from PULPIT full outer join TEACHER
+on PULPIT.PULPIT=TEACHER.PULPIT
+where TEACHER.TEACHER is not null
+
+--содержит данные правой таблицы и левой таблиц
+select * from PULPIT full outer join TEACHER
+on PULPIT.PULPIT = TEACHER.PULPIT
 
 ---9----
+-- как в 1
 select AUDITORIUM.AUDITORIUM, AUDITORIUM_TYPE.AUDITORIUM_TYPENAME
 from AUDITORIUM cross join AUDITORIUM_TYPE
 where AUDITORIUM.AUDITORIUM_TYPE =AUDITORIUM_TYPE.AUDITORIUM_TYPE 
 
 ---11----
+--drop table TIMETABLE 
 create table TIMETABLE (
 DAY_NAME char(2) check (DAY_NAME in('пн', 'вт', 'ср', 'чт', 'пт', 'сб')),
 LESSON integer check(LESSON between 1 and 4),
@@ -146,24 +174,28 @@ insert into TIMETABLE values
 
 select AUDITORIUM from AUDITORIUM
 except( select AUDITORIUM.AUDITORIUM
-from TIMETABLE , AUDITORIUM 
-where TIMETABLE.LESSON = 2 and AUDITORIUM.AUDITORIUM = TIMETABLE.AUDITORIUM);
+from TIMETABLE inner join AUDITORIUM 
+on AUDITORIUM.AUDITORIUM = TIMETABLE.AUDITORIUM 
+and TIMETABLE.LESSON = 2 )
 
 select AUDITORIUM from AUDITORIUM
 except( select AUDITORIUM.AUDITORIUM
-from TIMETABLE , AUDITORIUM 
-where TIMETABLE.DAY_NAME = 'вт' and AUDITORIUM.AUDITORIUM = TIMETABLE.AUDITORIUM);
+from TIMETABLE  inner join AUDITORIUM 
+on AUDITORIUM.AUDITORIUM = TIMETABLE.AUDITORIUM
+and TIMETABLE.DAY_NAME = 'ср');
 
 select distinct TEACHER .TEACHER_NAME, TIMETABLE.DAY_NAME, TIMETABLE.LESSON
 from TEACHER, TIMETABLE 
-except(
-select distinct TEACHER .TEACHER_NAME, t.DAY_NAME, t.LESSON
-from TEACHER, TIMETABLE t, TIMETABLE TT
-where TEACHER .TEACHER = t.TEACHER and t.DAY_NAME = TT.DAY_NAME and t.LESSON != TT.LESSON);
+except( select distinct TEACHER .TEACHER_NAME, t.DAY_NAME, t.LESSON
+from TEACHER 
+inner join TIMETABLE t on TEACHER .TEACHER = t.TEACHER 
+inner join TIMETABLE TT on t.DAY_NAME = TT.DAY_NAME 
+and t.LESSON != TT.LESSON);
 
 select distinct GROUPS.IDGROUP, t.DAY_NAME, TT.LESSON
 from GROUPS, TIMETABLE t, TIMETABLE TT
-except(
-select distinct GROUPS.IDGROUP, t.DAY_NAME, t.LESSON
-from GROUPS, TIMETABLE t, TIMETABLE TT
-where GROUPS.IDGROUP = t.IDGROUP and t.DAY_NAME = TT.DAY_NAME and t.LESSON != TT.LESSON)
+except( select distinct GROUPS.IDGROUP, t.DAY_NAME, t.LESSON
+from GROUPS 
+inner join TIMETABLE t on GROUPS.IDGROUP = t.IDGROUP 
+inner join TIMETABLE TT on t.DAY_NAME = TT.DAY_NAME 
+and t.LESSON != TT.LESSON)
