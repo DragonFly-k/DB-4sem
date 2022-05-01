@@ -21,14 +21,14 @@ inner join PROFESSION  on FACULTY.FACULTY = PROFESSION.FACULTY
 and (PROFESSION_NAME LIKE ('%технологи%'))
 
 ---4----
-/*список аудиторий самых больших вместимостей для каждого типа аудитории .отсортировать убывания вместимости.*/
+/*список аудиторий самых больших вместимостей для каждого типа аудитории .отсортировать убывания вместимости.к*/
 select AUDITORIUM_TYPE,AUDITORIUM_CAPACITY from AUDITORIUM A
 where AUDITORIUM_CAPACITY = (select top(1) AUDITORIUM_CAPACITY from AUDITORIUM R 
 where  R.AUDITORIUM_TYPE= A.AUDITORIUM_TYPE 
 order by AUDITORIUM_CAPACITY desc)
 
 ---5----
-/*факультеты без кафедр*/
+/*факультеты без кафедр.к*/
 select distinct FACULTY_NAME from FACULTY, PULPIT
 where not exists(select PULPIT.PULPIT from PULPIT
 where FACULTY.FACULTY = PULPIT.FACULTY)
@@ -36,9 +36,9 @@ where FACULTY.FACULTY = PULPIT.FACULTY)
 ---6----
 /*средние значения оценок по дисциплинам, имеющим следующие коды: ОАиП, БД и СУБД. */
 select top(1)
-(select avg(NOTE) from PROGRESS where SUBJECT= N'ОАиП')[ОАиП],
-(select avg(NOTE) from PROGRESS where SUBJECT= N'СУБД')[СУБД],
-(select avg(NOTE) from PROGRESS where SUBJECT= N'КГ')[КГ]
+(select avg(NOTE) from PROGRESS where SUBJECT= 'ОАиП')[ОАиП],
+(select avg(NOTE) from PROGRESS where SUBJECT= 'СУБД')[СУБД],
+(select avg(NOTE) from PROGRESS where SUBJECT= 'КГ')[КГ]
 from PROGRESS
 
 ---7----

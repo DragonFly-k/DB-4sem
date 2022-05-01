@@ -1,6 +1,5 @@
 use UNIVER
 ---1----
---найти макс., мин., средн., суммарна€ и общ.кол-во
 SELECT min(AUDITORIUM_CAPACITY) [минимальна€ вместительность],
 max(AUDITORIUM_CAPACITY) [максимальна€ вместительность],
 avg(AUDITORIUM_CAPACITY) [средн€€ вместительность],
@@ -28,7 +27,8 @@ WHEN NOTE between 8 and 9 then '8-9'
 WHEN NOTE between 6 and 7 then '6-7'
 WHEN NOTE between 4 and 5 then '4-5'
 END [диапазон], COUNT(*) as [количество]
-FROM PROGRESS GROUP BY CASE
+FROM PROGRESS 
+GROUP BY CASE
 WHEN NOTE = 10 then '10'
 WHEN NOTE between 8 and 9 then '8-9'
 WHEN NOTE between 6 and 7 then '6-7'
