@@ -5,6 +5,7 @@ drop view Лекционные_аудитории
 drop view Дисциплины*/
 
 --1--
+--Преподаватели
 create view [Преподаватель]
 as select TEACHER [код], 
 TEACHER_NAME [имя преподавателя],
@@ -30,16 +31,17 @@ as select	AUDITORIUM, AUDITORIUM_NAME
 from AUDITORIUM
 where AUDITORIUM_TYPE like 'ЛК%'
 
-insert Аудитории values('201', '200-3а')
+alter view Аудитории (код, наименование_аудитории, тип)
+as select AUDITORIUM,
+AUDITORIUM_NAME,
+AUDITORIUM_TYPE 
+from AUDITORIUM
+where AUDITORIUM_TYPE like 'ЛК%'
+
 select * from Аудитории
-select * from AUDITORIUM
-update Аудитории set наименование_аудитории=0 where код='236-1'
-select * from Аудитории
-update Аудитории set наименование_аудитории='236-1' where код='236-1'
-delete from AUDITORIUM where AUDITORIUM='201'
-select * from AUDITORIUM
 
 --4--
+--лк, но с ограничением
 create view [Лекционные_аудитории]
 as select AUDITORIUM [код],
 AUDITORIUM_NAME	[наименование_аудитории]
@@ -47,19 +49,8 @@ from AUDITORIUM
 where AUDITORIUM_TYPE like 'ЛК%'
 with check option
 
-alter view [Лекционные_аудитории]
-as select AUDITORIUM [код],
-AUDITORIUM_NAME	[наименование_аудитории],
-AUDITORIUM_TYPE [тип]
-from AUDITORIUM
-where AUDITORIUM_TYPE like 'ЛК%'
-with check option
-
-insert Лекционные_аудитории values('201','200-3а','ЛК')
 update Лекционные_аудитории set наименование_аудитории=0 where код='236-1'
-select * from Лекционные_аудитории
-update Лекционные_аудитории  set наименование_аудитории='236-1' where код='236-1'
-delete from AUDITORIUM where AUDITORIUM='201'
+update Лекционные_аудитории set наименование_аудитории=0 where код='301-1'
 select * from Лекционные_аудитории
 
 --5--

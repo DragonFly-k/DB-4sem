@@ -9,7 +9,8 @@ print 's='+cast(@s as varchar(10))
 print 'ti='+cast(@ti as varchar(10))
 print 'n='+cast(@n as varchar(13))
 
---2-- общ.вместимость аудиторий
+--2-- 
+--общ.вместимость аудиторий
 -- если >200, вывод кол-во +ср.вм. +кол-во ауд с вм меньше средней +их %
 -- если <200, вывод сообщения об общ.вм.
 DECLARE @v1 int, @v2 int, @v3 int, @v4 int 
@@ -24,7 +25,8 @@ select @v2 'Кол-во ауд.', @v3 'Средняя вмест', @v4 'Кол-во ауд. меньше средней',
 end 
 else print 'общ.вм'+cast(@v1 as varchar(10))
 
---3-- глоб.пер-ные
+--3-- 
+--глоб.пер-ные
 select	@@ROWCOUNT 'число обработанных строк',
 		@@VERSION 'версия SQL Server',
 		@@SPID 'возвращает системный идентификатор процесса, назначенный сервером текущему подключению',
@@ -70,7 +72,7 @@ print 'Средний балл в группе: '+cast(@avg as varchar)
 end
 else print 'Кол-во студентов в группе: '+cast(@count as varchar)
 
---6.
+--6--
 select student.NAME [Имя], student.IDGROUP [Группа],
 case when progress.NOTE between 0 and 3 then 'плохо'
 when progress.NOTE between 4 and 6 then 'средне'
@@ -85,7 +87,8 @@ when progress.NOTE between 7 and 8 then 'хорошо'
 else 'отлично'
 end
 
---7-- созд. врем. табл. 3х10, заполн и вывод, WHILE
+--7-- 
+--созд. врем. табл. 3х10, заполн и вывод, WHILE
 CREATE table #PET(
 age int,
 name varchar(50),
@@ -100,7 +103,8 @@ end
 select * from #PET
 --drop table #PET
 
---8. исп. оператора RETURN
+--8--
+--исп. оператора RETURN
 declare @xx int = 1
 while @xx < 10
 begin
