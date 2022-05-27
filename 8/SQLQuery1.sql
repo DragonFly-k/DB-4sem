@@ -37,6 +37,7 @@ select	@@ROWCOUNT 'число обработанных строк',
 		@@NESTLEVEL 'уровень вложенности текущей процедуры'
 
 --4--
+--система функ
 declare @tt int=3, @x float=4, @z float;
 if (@tt>@x) set @z=power(SIN(@tt),2);
 if (@tt<@x) set @z=4*(@tt+@x);
