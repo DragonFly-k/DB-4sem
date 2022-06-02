@@ -131,17 +131,20 @@ CLOSE Cur1
 SELECT NAME, NOTE from PROGRESS join STUDENT
 on PROGRESS.IDSTUDENT = STUDENT.IDSTUDENT and NOTE<5
 insert into PROGRESS (SUBJECT,IDSTUDENT,PDATE, NOTE)
-values  ('ÎÀèÏ', 1005,  '01.10.2013',4),
-        ('ÑÓÁÄ', 1017,  '01.12.2013',4),
-		('ÊÃ',   1018,  '06.5.2013',4),
-        ('ÎÕ',   1065,  '01.1.2013',4),
-        ('ÎÕ',   1069,  '01.1.2013',4),
-        ('ÝÒ',   1058,  '01.1.2013',4)
+values  ('ÎÀèÏ', 1005,  '01.10.2013',3),
+        ('ÑÓÁÄ', 1017,  '01.12.2013',2),
+		('ÊÃ',   1018,  '06.5.2013',2),
+        ('ÎÕ',   1065,  '01.1.2013',2),
+        ('ÎÕ',   1069,  '01.1.2013',2),
+        ('ÝÒ',   1058,  '01.1.2013',2)
 
 -- óâåëèè÷òü îöåíêó íà åäèíèöó
 DECLARE @name4 char(20), @n3 int
-DECLARE Cur2 CURSOR LOCAL for SELECT NAME, NOTE from PROGRESS join STUDENT
-on PROGRESS.IDSTUDENT = STUDENT.IDSTUDENT and PROGRESS.IDSTUDENT=1005
+DECLARE Cur2 CURSOR LOCAL for 
+SELECT NAME, NOTE 
+from PROGRESS join STUDENT
+on PROGRESS.IDSTUDENT = STUDENT.IDSTUDENT 
+and PROGRESS.IDSTUDENT=1005
 
 OPEN Cur2
 fetch  Cur2 into @name4, @n3
