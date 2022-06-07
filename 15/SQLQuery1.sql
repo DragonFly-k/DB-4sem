@@ -1,7 +1,13 @@
 --1--
 --созд.XML в режиме PATH из TEACHER для преподов ИСиТ
 --каждый столбец конфигурируется независимо с пом имени псевдонима этого столбца
-select PULPIT.FACULTY[факультет/@код], TEACHER.PULPIT[факультет/кафедра/@код], TEACHER.TEACHER_NAME[факультет/кафедра/преподаватель/@код]
+select PULPIT.FACULTY[факультет], TEACHER.PULPIT[факультет/кафедра], 
+TEACHER.TEACHER_NAME[факультет/кафедра/преподаватель]
+from TEACHER inner join PULPIT on TEACHER.PULPIT = PULPIT.PULPIT
+where TEACHER.PULPIT = 'ИСиТ' for xml raw, root('Список_преподавателей_кафедры_ИСиТ');
+
+select PULPIT.FACULTY[факультет], TEACHER.PULPIT[факультет/кафедра], 
+TEACHER.TEACHER_NAME[факультет/кафедра/преподаватель]
 from TEACHER inner join PULPIT on TEACHER.PULPIT = PULPIT.PULPIT
 where TEACHER.PULPIT = 'ИСиТ' for xml path, root('Список_преподавателей_кафедры_ИСиТ');
 
@@ -10,7 +16,8 @@ where TEACHER.PULPIT = 'ИСиТ' for xml path, root('Список_преподавателей_кафедры_
 --к таблицам AUDITORIUM и AUDI-TORIUM_TYPE, который содержит следую-щие столбцы:
 --наименование аудитории, наиме-нование типа аудитории и вместимость. 
 --Найти только лекционные аудитории
-select AUDITORIUM.AUDITORIUM [Аудитория], AUDITORIUM.AUDITORIUM_TYPE [Наимменование_типа],AUDITORIUM.AUDITORIUM_CAPACITY [Вместимость] 
+select AUDITORIUM.AUDITORIUM [Аудитория], AUDITORIUM.AUDITORIUM_TYPE [Наимменование_типа],
+AUDITORIUM.AUDITORIUM_CAPACITY [Вместимость] 
 from AUDITORIUM join AUDITORIUM_TYPE on AUDITORIUM.AUDITORIUM_TYPE = AUDITORIUM_TYPE.AUDITORIUM_TYPE
 where AUDITORIUM.AUDITORIUM_TYPE = 'ЛК' for xml AUTO, root('Список_аудиторий'), elements;
 
@@ -27,7 +34,7 @@ declare @h int = 0,
 						 <дисциплина код="МПп" название="Математическое программирование п" кафедра="ИСиТ" />
 					  </дисциплины>';
 exec sp_xml_preparedocument @h output, @sbj;
-insert SUBJECT select[код], [название], [кафедра] from openxml(@h, '/дисциплины/дисциплина',0)
+insert SUBJECT select[код], [название], [кафедра] from openxml (@h, '/дисциплины/дисциплина',0)
 with([код] char(10), [название] varchar(100), [кафедра] char(20));
 
 --select * from SUBJECT
@@ -38,12 +45,11 @@ with([код] char(10), [название] varchar(100), [кафедра] char(20));
 --Разработать сценарий, в который включен оператор INSERT, добавляющий строку с XML-столбцом.
 --Включить в этот же сценарий оператор UP-DATE, изменяющий столбец INFO у одной строки таблицы STUDENT 
 --и оператор SELECT, формирующий результирующий набор, аналогичный представленному на ри-сунке. 
---В SELECT-запросе использовать методы QUERY и VALUEXML-типа.
 insert into STUDENT(IDGROUP, NAME, BDAY, INFO)
 values(4, 'Сятковская Е.Д.', '2003-04-20',
 	'<студент>
-		<паспорт серия="МР" номер="4133033" дата="2018-03-12" />
-		<телефон>+375297631738</телефон>
+		<паспорт серия="МР" номер="4155986" дата="2018-03-12" />
+		<телефон>+37529589565</телефон>
 		<адрес>
 			<страна>Беларусь</страна>
 			<город>Минск</город>
@@ -54,18 +60,18 @@ values(4, 'Сятковская Е.Д.', '2003-04-20',
 	</студент>');
 select * from STUDENT where NAME = 'Сятковская Е.Д.';
 update STUDENT set INFO = '<студент>
-		<паспорт серия="МР" номер="4133033" дата="2018-03-12" />
-		<телефон>375297631738</телефон>
+		<паспорт серия="МР" номер="4130623" дата="2018-03-12" />
+		<телефон>37529589565</телефон>
 		<адрес>
 			<страна>Беларусь</страна>
 			<город>Минск</город>
-			<улица>Прушинских</улица>
+			<улица>Малинина</улица>
 			<дом>4</дом>
 			<квартира>34</квартира>
 		</адрес>
 	</студент>' where NAME='Сятковская Е.Д.'
-select NAME[ФИО], INFO.value('(студент/паспорт/@серия)[1]', 'char(2)')[Серия паспорта],
-INFO.value('(студент/паспорт/@номер)[1]', 'varchar(20)')[Номер паспорта], 
+select NAME[ФИО], INFO.value('(студент/паспорт/серия)[1]', 'char(2)')[Серия паспорта],
+INFO.value('(студент/паспорт/номер)[1]', 'varchar(20)')[Номер паспорта], 
 INFO.query('/студент/адрес')[Адрес]
 from  STUDENT where NAME = 'Сятковская Е.Д.';   
 

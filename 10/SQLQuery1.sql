@@ -10,8 +10,8 @@ fetch Subs into @sub;
 print 'Дисциплины на кафедре ИСиТ:'   
 while @@fetch_status = 0                                   
 begin 
-set @str = rtrim(@sub)+', '+@str -- удаляет все завершающие пробелы        
-fetch  Subs into @sub
+set @str = rtrim(@sub)+', '+@str  
+fetch Subs into @sub
 end  
 print @str      
 close  Subs
@@ -20,42 +20,36 @@ deallocate Subs
 --2--
 --Отличие глобального курсора от локального 
 declare curL cursor local for select PROGRESS.IDSTUDENT, PROGRESS.NOTE from PROGRESS 
-
 declare @st varchar(10), @note int
 open curL
 fetch curL into @st,@note
 print '1. ' + @st + ': ' + cast(@note as varchar) 
-
-go
+go 
 declare @st varchar(10), @note int
 open curL
 fetch curL into @st,@note
 print '2. ' + @st + ': ' + cast(@note as varchar) 
-
 go
-declare curG cursor global for select PROGRESS.IDSTUDENT, PROGRESS.NOTE from PROGRESS 
 
+declare curG cursor global for select PROGRESS.IDSTUDENT, PROGRESS.NOTE from PROGRESS 
 declare @st varchar(10), @note int
 open curG
 fetch curG into @st,@note
 print '1. ' + @st + ': ' + cast(@note as varchar) 
-
 go
 declare @st varchar(10), @note int
 fetch curG into @st,@note
 print '2. ' + @st + ': ' + cast(@note as varchar) 
-
 close curG
 deallocate curG
 
 --3--
 --Отличие статических курсоров от динамических
 declare cur cursor local static for select AUDITORIUM, AUDITORIUM_TYPE, AUDITORIUM_CAPACITY from AUDITORIUM 
-
 declare @name varchar(10), @type varchar(5), @cap int
 open cur
 print 'Кол-во строк: ' + cast(@@cursor_rows as char)
-update AUDITORIUM set AUDITORIUM_TYPE = 'ЛК-К' where AUDITORIUM = '1234567'		
+update AUDITORIUM set AUDITORIUM_TYPE = 'ЛК' where AUDITORIUM = '236-1'		
 fetch cur into @name, @type, @cap;
 while @@FETCH_STATUS = 0
 begin
@@ -65,11 +59,10 @@ end
 close cur
 
 declare cur1 cursor local dynamic for select AUDITORIUM, AUDITORIUM_TYPE, AUDITORIUM_CAPACITY from AUDITORIUM 
-
 declare @name1 varchar(10), @type1 varchar(5), @cap1 int
 open cur1
 print 'Кол-во строк: ' + cast(@@cursor_rows as char)
-update AUDITORIUM set AUDITORIUM_TYPE = 'ЛК-К' where AUDITORIUM = '200-а'
+update AUDITORIUM set AUDITORIUM_TYPE = 'ЛК' where AUDITORIUM = '236-1'
 fetch cur1 into @name1, @type1, @cap1
 while @@FETCH_STATUS = 0
 begin
@@ -102,7 +95,6 @@ CLOSE ScrollCur
 --Создать курсор, демонстрирующий применение конструкции CURRENT OF 
 --в секции WHERE с исп UPDATE и DELETE.
 declare cur cursor local dynamic for select IDSTUDENT, NOTE from PROGRESS FOR UPDATE
-
 declare @id varchar(10), @nt int
 open cur
 fetch cur into @id, @nt
@@ -117,8 +109,7 @@ close cur
 --из PROGRESS удал строки о студентах с оц<4
 DECLARE @name3 nvarchar(20), @n int
 DECLARE Cur1 CURSOR LOCAL for SELECT NAME, NOTE from PROGRESS join STUDENT 
-on PROGRESS.IDSTUDENT = STUDENT.IDSTUDENT and NOTE<5
-
+on PROGRESS.IDSTUDENT = STUDENT.IDSTUDENT and NOTE<4
 OPEN Cur1
 fetch  Cur1 into @name3, @n
 while @@fetch_status = 0
@@ -128,8 +119,8 @@ fetch  Cur1 into @name3, @n
 end
 CLOSE Cur1
 
-SELECT NAME, NOTE from PROGRESS join STUDENT
-on PROGRESS.IDSTUDENT = STUDENT.IDSTUDENT and NOTE<5
+SELECT NAME, NOTE from PROGRESS join STUDENT on PROGRESS.IDSTUDENT = STUDENT.IDSTUDENT and NOTE<4
+
 insert into PROGRESS (SUBJECT,IDSTUDENT,PDATE, NOTE)
 values  ('ОАиП', 1005,  '01.10.2013',3),
         ('СУБД', 1017,  '01.12.2013',2),
@@ -140,16 +131,14 @@ values  ('ОАиП', 1005,  '01.10.2013',3),
 
 -- увелиичть оценку на единицу
 DECLARE @name4 char(20), @n3 int
-DECLARE Cur2 CURSOR LOCAL for 
-SELECT NAME, NOTE 
-from PROGRESS join STUDENT
-on PROGRESS.IDSTUDENT = STUDENT.IDSTUDENT 
-and PROGRESS.IDSTUDENT=1005
-
+DECLARE Cur2 CURSOR LOCAL for SELECT NAME, NOTE from PROGRESS join STUDENT 
+on PROGRESS.IDSTUDENT = STUDENT.IDSTUDENT and PROGRESS.IDSTUDENT=1005
 OPEN Cur2
 fetch  Cur2 into @name4, @n3
 UPDATE PROGRESS set NOTE=NOTE+1 where CURRENT OF Cur2
 CLOSE Cur2
 
-SELECT NAME, NOTE from PROGRESS join STUDENT
-on PROGRESS.IDSTUDENT = STUDENT.IDSTUDENT and PROGRESS.IDSTUDENT=1005
+SELECT NAME, NOTE 
+from PROGRESS join STUDENT 
+on PROGRESS.IDSTUDENT = STUDENT.IDSTUDENT 
+and PROGRESS.IDSTUDENT=1005

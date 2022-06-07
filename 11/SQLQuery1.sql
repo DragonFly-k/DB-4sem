@@ -29,7 +29,6 @@ insert FACULTY values ('ПиМ', 'Факультет print-технологий');
 update FACULTY set FACULTY_NAME='The Best' where FACULTY='ИТ'
 commit tran;               -- фиксация транзакции
 end try
-
 begin catch
 print 'ошибка: '+ case 
 when error_number() = 2627 and patindex('%FACULTY_PK%', error_message()) > 0 
@@ -48,39 +47,26 @@ DELETE FACULTY WHERE FACULTY = 'ПиМ';
 --3-- ОПЕРАТОР SAVE TRAN
 -- если транзакция сост из неск независ блоков операторов T-SQL, то исп.
 -- SAVE TRANSACTION, формир контр.точку транзакции
-declare @point varchar(32); --макс. длина имени 32
+declare @point varchar(3)
 begin try
-begin tran  --начало явной транзакции                         
-set @point = 'p1'; 
-save tran @point;  -- контрольная точка p1
-insert STUDENT(IDGROUP, NAME, BDAY, INFO, FOTO)
-values(20,'Екатерина', '2004-08-02', NULL, NULL),
-      (20,'Александра', '2002-08-06', NULL, NULL),
-	  (20,'Елизавета', '2000-08-01', NULL, NULL),
-	  (20,'Ольга', '2003-08-03', NULL, NULL);    
-set @point = 'p2'; 
-save tran @point; -- контрольная точка p2
-insert STUDENT(IDGROUP, NAME, BDAY, INFO, FOTO)
-values (20, 'Евгений', '2000-02-20', NULL, NULL); 
-commit tran;                                              
+begin tran
+delete from AUDITORIUM where AUDITORIUM = '123-1'
+set @point = 'p1'; save tran @point
+insert into AUDITORIUM values('test1', 'ЛБ-К', 40, 'test1')
+set @point = 'p2'; save tran @point
+insert into AUDITORIUM values('test1', 'ЛК', 50, 'test2')
+set @point = 'p3'; save tran @point
+commit tran
 end try
-
 begin catch
-print 'ошибка: '+ case 
-when error_number() = 2627 and patindex('%STUDENT_PK%', error_message()) > 0 
-then 'дублирование студента' 
-else 'неизвестная ошибка: '+ cast(error_number() as  varchar(5)) + error_message()  
-end; 
-if @@trancount > 0 -- если транзакция не завершена
+print 'Ошибка! ' + error_message()
+if @@TRANCOUNT > 0
 begin
-print 'контрольная точка: '+ @point;
-rollback tran @point; -- откат к последней контр.точке
-commit tran; -- фиксация изменений, выполн до контр.точки 
-end;     
-end catch;
-
-select * from STUDENT where IDGROUP=20; 
-delete STUDENT where IDGROUP=20; 
+print 'Контрольная точка: ' + cast(@point as varchar)
+rollback tran @point
+commit tran
+end
+end catch
 
 --4--
 --READ UNCOMMITTED 
@@ -105,7 +91,7 @@ commit;
 -----t2---------
 begin transaction
 select @@SPID
-insert FACULTY values('ИТ3','Информационных технологий');
+insert FACULTY values('ИТt','Информационных технологий');
 update PULPIT set FACULTY = 'ИТ' WHERE PULPIT = 'ИСиТ'
 -----t1----------
 -----t2----------
@@ -124,10 +110,10 @@ SELECT * from PULPIT;
 -----A--------
 set transaction isolation level READ COMMITTED
 begin transaction
-select count(*) from PULPIT where FACULTY = 'ИТ'; --Указывает одно значение, видим результат 0
+select count(*) from PULPIT where FACULTY = 'ИТ';
 -----t1-------
 -----t2-------
-select 'update PULPIT' 'результат', count(*) --здесь результат 1, т.к. произошло изменение
+select 'update PULPIT' 'результат', count(*) --здесь результат 2, т.к. произошло изменение
 from PULPIT where FACULTY = 'ИТ'; --работает неповторяющееся чтение
 commit;
 -----B----
@@ -178,7 +164,7 @@ select AUDITORIUM from AUDITORIUM where AUDITORIUM = '123-4'
 commit 	
 --- B ---	
 begin transaction 	  
-delete AUDITORIUM where AUDITORIUM_NAME = 'Луч'; 
+delete AUDITORIUM where AUDITORIUM_NAME = 'Луч' 
 insert AUDITORIUM values ('123-4', 'ЛК-К', 10, 'Луч')
 update AUDITORIUM set AUDITORIUM_NAME = 'Луч' where AUDITORIUM = '123-4'
 select AUDITORIUM from AUDITORIUM  where AUDITORIUM = '123-4'
@@ -187,6 +173,7 @@ commit
 select AUDITORIUM from AUDITORIUM  where AUDITORIUM = '123-4'
 --------t2---------
 
+select * from AUDITORIUM 
 --8-- ВЛОЖЕННЫЕ ТРАНЗАКЦИИ
 -- Транзакция, выполняющаяся в рамках другой транзакции, называется вложенной. 
 -- оператор COMMIT вложенной транзакции действует только на внутренние операции вложенной транзакции; 
